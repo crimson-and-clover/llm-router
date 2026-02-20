@@ -3,9 +3,9 @@
  * https://developers.cloudflare.com/workers/wrangler/configuration/
  *
  * 部署命令：
- * - 线上环境: wrangler deploy --env production
- * - 开发环境: wrangler deploy --env development
- * - 本地开发: wrangler dev --env development
+ * - 线上环境: npx wrangler deploy --env production
+ * - 开发环境: npx wrangler deploy --env development
+ * - 本地开发: npx wrangler dev --env development
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
