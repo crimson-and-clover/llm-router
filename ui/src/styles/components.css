@@ -1,0 +1,409 @@
+/* ============================================
+   组件样式模板
+   所有可复用样式集中定义于此
+   ============================================ */
+
+/* ------------------------------------------
+   文字样式
+   ------------------------------------------ */
+@layer components {
+  /* 页面大标题 - 用于页面顶部主标题 */
+  .text-heading-large {
+    @apply text-2xl font-bold text-gray-900 tracking-tight;
+  }
+
+  /* 区块标题 - 用于各个区块的标题 */
+  .text-heading-medium {
+    @apply text-xl font-semibold text-gray-800 tracking-tight;
+  }
+
+  /* 小标题 - 用于卡片标题等 */
+  .text-heading-small {
+    @apply text-lg font-medium text-gray-800;
+  }
+
+  /* 正文文字 - 默认文本 */
+  .text-body {
+    @apply text-base text-gray-700 leading-relaxed;
+  }
+
+  /* 辅助说明文字 - 用于描述、提示 */
+  .text-body-small {
+    @apply text-sm text-gray-600 leading-normal;
+  }
+
+  /* 表单标签 */
+  .text-label {
+    @apply text-sm font-medium text-gray-700;
+  }
+
+  /* 表格头部文字 */
+  .text-table-header {
+    @apply text-xs font-semibold text-gray-500 uppercase tracking-wider;
+  }
+
+  /* 链接文字 */
+  .text-link {
+    @apply text-primary-600 hover:text-primary-700 font-medium transition-colors duration-200;
+  }
+}
+
+/* ------------------------------------------
+   按钮样式
+   ------------------------------------------ */
+@layer components {
+  /* 主要按钮 - 用于主要操作 */
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-4 py-2.5
+           bg-primary-600 text-white text-sm font-medium
+           rounded-lg
+           hover:bg-primary-700
+           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-colors duration-200;
+  }
+
+  /* 次要按钮 - 用于次要操作 */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-4 py-2.5
+           bg-white text-gray-700 text-sm font-medium
+           border border-gray-300 rounded-lg
+           hover:bg-gray-50 hover:text-gray-900
+           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-colors duration-200;
+  }
+
+  /* 危险按钮 - 用于删除等危险操作 */
+  .btn-danger {
+    @apply inline-flex items-center justify-center px-4 py-2.5
+           bg-danger-600 text-white text-sm font-medium
+           rounded-lg
+           hover:bg-danger-700
+           focus:outline-none focus:ring-2 focus:ring-danger-500 focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-colors duration-200;
+  }
+
+  /* 幽灵按钮 - 用于低优先级操作 */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center px-4 py-2.5
+           text-gray-600 text-sm font-medium
+           rounded-lg
+           hover:text-gray-900 hover:bg-gray-100
+           focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-colors duration-200;
+  }
+
+  /* 小尺寸按钮 */
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+
+  /* 大尺寸按钮 */
+  .btn-lg {
+    @apply px-6 py-3 text-base;
+  }
+}
+
+/* ------------------------------------------
+   表单样式
+   ------------------------------------------ */
+@layer components {
+  /* 输入框基础样式 */
+  .input-field {
+    @apply w-full px-3 py-2.5
+           bg-white text-gray-900 text-sm
+           border border-gray-300 rounded-lg
+           placeholder:text-gray-400
+           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+           disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed
+           transition-all duration-200;
+  }
+
+  /* 输入框错误状态 */
+  .input-field-error {
+    @apply border-danger-500 focus:ring-danger-500 focus:border-danger-500;
+  }
+
+  /* 下拉选择框 */
+  .select-field {
+    @apply w-full px-3 py-2.5
+           bg-white text-gray-900 text-sm
+           border border-gray-300 rounded-lg
+           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+           disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed
+           transition-all duration-200;
+  }
+
+  /* 表单组容器 */
+  .form-group {
+    @apply space-y-1.5;
+  }
+
+  /* 表单错误提示 */
+  .form-error {
+    @apply text-sm text-danger-600;
+  }
+
+  /* 表单帮助文字 */
+  .form-help {
+    @apply text-xs text-gray-500;
+  }
+}
+
+/* ------------------------------------------
+   卡片和容器样式
+   ------------------------------------------ */
+@layer components {
+  /* 通用卡片 */
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-200;
+  }
+
+  /* 卡片头部 */
+  .card-header {
+    @apply px-6 py-4 border-b border-gray-200;
+  }
+
+  /* 卡片内容 */
+  .card-body {
+    @apply px-6 py-4;
+  }
+
+  /* 卡片底部 */
+  .card-footer {
+    @apply px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl;
+  }
+
+  /* 页面容器 */
+  .page-container {
+    @apply p-6 max-w-7xl mx-auto;
+  }
+
+  /* 区块容器 */
+  .section-container {
+    @apply space-y-6;
+  }
+
+  /* 数据展示区域 */
+  .data-container {
+    @apply bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden;
+  }
+}
+
+/* ------------------------------------------
+   表格样式
+   ------------------------------------------ */
+@layer components {
+  /* 表格容器 */
+  .table-container {
+    @apply overflow-x-auto;
+  }
+
+  /* 基础表格 */
+  .table-base {
+    @apply min-w-full divide-y divide-gray-200;
+  }
+
+  /* 表格头部 */
+  .table-header {
+    @apply bg-gray-50;
+  }
+
+  /* 表格头部单元格 */
+  .table-header-cell {
+    @apply px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider;
+  }
+
+  /* 表格主体 */
+  .table-body {
+    @apply bg-white divide-y divide-gray-200;
+  }
+
+  /* 表格单元格 */
+  .table-cell {
+    @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+  }
+
+  /* 表格行悬停 */
+  .table-row-hover {
+    @apply hover:bg-gray-50 transition-colors duration-150;
+  }
+}
+
+/* ------------------------------------------
+   状态标签样式
+   ------------------------------------------ */
+@layer components {
+  /* 成功状态 */
+  .badge-success {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-800;
+  }
+
+  /* 警告状态 */
+  .badge-warning {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning-100 text-warning-800;
+  }
+
+  /* 危险状态 */
+  .badge-danger {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-danger-100 text-danger-800;
+  }
+
+  /* 默认/信息状态 */
+  .badge-info {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800;
+  }
+
+  /* 禁用/失效状态 */
+  .badge-inactive {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800;
+  }
+}
+
+/* ------------------------------------------
+   导航样式
+   ------------------------------------------ */
+@layer components {
+  /* 导航链接 */
+  .nav-link {
+    @apply flex items-center px-4 py-2.5 text-sm font-medium text-gray-600 rounded-lg
+           hover:bg-gray-50 hover:text-gray-900
+           transition-colors duration-200;
+  }
+
+  /* 导航链接激活状态 */
+  .nav-link-active {
+    @apply bg-primary-50 text-primary-700;
+  }
+
+  /* 侧边栏 */
+  .sidebar {
+    @apply w-64 bg-white border-r border-gray-200 flex flex-col;
+  }
+}
+
+/* ------------------------------------------
+   模态框/弹窗样式
+   ------------------------------------------ */
+@layer components {
+  /* 模态框遮罩 */
+  .modal-overlay {
+    @apply fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity z-40;
+  }
+
+  /* 模态框容器 */
+  .modal-container {
+    @apply fixed inset-0 z-50 overflow-y-auto;
+  }
+
+  /* 模态框内容 */
+  .modal-content {
+    @apply flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0;
+  }
+
+  /* 模态框面板 */
+  .modal-panel {
+    @apply relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg;
+  }
+
+  /* 模态框头部 */
+  .modal-header {
+    @apply px-4 py-3 sm:px-6 border-b border-gray-200;
+  }
+
+  /* 模态框主体 */
+  .modal-body {
+    @apply px-4 py-4 sm:px-6;
+  }
+
+  /* 模态框底部 */
+  .modal-footer {
+    @apply px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200 bg-gray-50;
+  }
+}
+
+/* ------------------------------------------
+   分页样式
+   ------------------------------------------ */
+@layer components {
+  /* 分页容器 */
+  .pagination {
+    @apply flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6;
+  }
+
+  /* 分页按钮 */
+  .pagination-btn {
+    @apply relative inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md
+           hover:bg-gray-50
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-colors duration-200;
+  }
+
+  /* 分页按钮激活 */
+  .pagination-btn-active {
+    @apply z-10 bg-primary-50 border-primary-500 text-primary-600;
+  }
+}
+
+/* ------------------------------------------
+   加载和空状态
+   ------------------------------------------ */
+@layer components {
+  /* 加载旋转器 */
+  .spinner {
+    @apply inline-block w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin;
+  }
+
+  /* 空状态容器 */
+  .empty-state {
+    @apply flex flex-col items-center justify-center py-12 text-center;
+  }
+
+  /* 空状态图标 */
+  .empty-state-icon {
+    @apply w-12 h-12 text-gray-400 mb-4;
+  }
+
+  /* 空状态标题 */
+  .empty-state-title {
+    @apply text-lg font-medium text-gray-900 mb-1;
+  }
+
+  /* 空状态描述 */
+  .empty-state-description {
+    @apply text-sm text-gray-500;
+  }
+}
+
+/* ------------------------------------------
+   Toast/通知样式
+   ------------------------------------------ */
+@layer components {
+  /* Toast 容器 */
+  .toast-container {
+    @apply fixed bottom-4 right-4 z-50 flex flex-col gap-2;
+  }
+
+  /* Toast 消息 */
+  .toast {
+    @apply flex items-center px-4 py-3 rounded-lg shadow-lg text-sm font-medium;
+  }
+
+  /* 成功 Toast */
+  .toast-success {
+    @apply bg-success-500 text-white;
+  }
+
+  /* 错误 Toast */
+  .toast-error {
+    @apply bg-danger-500 text-white;
+  }
+
+  /* 信息 Toast */
+  .toast-info {
+    @apply bg-primary-500 text-white;
+  }
+}

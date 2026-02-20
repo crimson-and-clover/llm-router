@@ -1,0 +1,16 @@
+/.venv
+/**/__pycache__
+/__pycache__
+/**/.DS_Store
+/.DS_Store
+/.env
+/**/*.log
+/*.log
+/logs
+/secrets.txt
+/cursor*.md
+/chat_history
+/data
+/requests
+/.pytest*
+/.ruff_cache

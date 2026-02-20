@@ -1,0 +1,100 @@
+---
+description: Python coding standards for the API Mirror project
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# Python 编码规范
+
+## 导入顺序
+
+```python
+# 1. 标准库
+from contextlib import asynccontextmanager
+from pathlib import Path
+import sys
+
+# 2. 第三方库
+from fastapi import FastAPI
+import aiosqlite
+
+# 3. 本地模块
+from src.core.settings import get_settings
+from src.providers import DeepSeekProvider
+```
+
+## 类型注解
+
+- **必须**为所有函数参数和返回值添加类型注解
+- 使用 `typing` 模块的类型：
+  - `Optional[T]` 替代 `Union[T, None]`
+  - `list[dict]` 替代 `List[Dict]`（Python 3.9+）
+  - `AsyncIterator[str]` 用于异步生成器
+
+```python
+from typing import Optional, AsyncIterator, Any, Dict
+
+async def get_api_key(self, key_value: str) -> Optional[dict]:
+    ...
+
+async def chat_completions_stream(self, payload: Dict[str, Any]) -> AsyncIterator[str]:
+    ...
+```
+
+## 异步编程
+
+- 使用 `async/await` 处理 I/O 操作
+- 数据库操作必须使用异步库（如 `aiosqlite`）
+- HTTP 请求使用异步客户端
+
+## 错误处理
+
+```python
+# ❌ 避免
+except:
+    pass
+
+# ✅ 推荐
+try:
+    await db.execute("...")
+except aiosqlite.IntegrityError:
+    # 处理唯一性约束冲突
+    return False
+except Exception as e:
+    logger.error(f"Database error: {e}")
+    raise
+```
+
+## 文档字符串
+
+- 类和方法必须添加文档字符串
+- 使用 Google 风格或简洁描述
+
+```python
+async def init_db(self):
+    """初始化数据库表并开启 WAL 模式"""
+    ...
+
+async def add_api_key(self, key_value: str, owner: str = "default") -> bool:
+    """插入新的 API Key
+    
+    Args:
+        key_value: API Key 值
+        owner: 所有者标识
+        
+    Returns:
+        是否成功插入（False 表示已存在）
+    """
+    ...
+```
+
+## 常量定义
+
+- 模块级常量使用全大写
+- 路径使用 `pathlib.Path`
+
+```python
+DB_DIR = Path("./data")
+DB_PATH = DB_DIR / "api_keys.db"
+DEFAULT_TIMEOUT = 30
+```

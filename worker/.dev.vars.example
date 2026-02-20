@@ -1,0 +1,15 @@
+# Endpoint url
+MOONSHOT_BASE_URL="https://api.moonshot.cn/v1"
+DEEPSEEK_BASE_URL="https://api.deepseek.com"
+ZAI_BASE_URL="https://open.bigmodel.cn/api/paas/v4"
+BACKEND_URL=http://localhost:12000
+
+# 环境变量（可选，本地开发使用默认值）
+KV_NAMESPACE_ID=local
+USAGE_QUEUE_NAME=usage-queue-local
+
+# Secrets
+INTERNAL_SECRET="sk-xxxxxx"
+DEEPSEEK_API_KEY="sk-xxxxxx"
+MOONSHOT_API_KEY="sk-xxxxxx"
+ZAI_API_KEY="sk-xxxxxx"

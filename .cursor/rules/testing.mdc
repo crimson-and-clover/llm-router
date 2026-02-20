@@ -1,0 +1,306 @@
+---
+description: Testing conventions and best practices
+globs: "tests/**/*.py,tests_integration/**/*.py"
+alwaysApply: false
+---
+
+# 测试规范
+
+## 测试框架
+
+- 使用 `pytest` 作为测试框架
+- 使用 `pytest-asyncio` 测试异步代码
+- 使用 `unittest.mock` 进行 Mock
+
+## 测试文件命名
+
+```
+tests/
+├── conftest.py              # 共享 fixture
+├── test_providers.py        # Provider 测试
+├── test_api.py              # API 路由测试
+└── test_storage.py          # 存储层测试
+```
+
+## 基本测试结构
+
+```python
+import pytest
+from unittest.mock import AsyncMock, patch, MagicMock
+
+# 标记异步测试
+@pytest.mark.asyncio
+async def test_async_function():
+    result = await some_async_function()
+    assert result == expected
+
+# 同步测试
+def test_sync_function():
+    result = sync_function()
+    assert result == expected
+```
+
+## Mock 异步函数
+
+```python
+from unittest.mock import AsyncMock, patch
+
+@pytest.mark.asyncio
+async def test_with_mock():
+    with patch("module.async_func", new_callable=AsyncMock) as mock:
+        mock.return_value = {"data": "test"}
+        result = await function_under_test()
+        assert result == {"data": "test"}
+        mock.assert_called_once()
+```
+
+## 测试 Provider
+
+```python
+@pytest.mark.asyncio
+async def test_kimi_chat_completions():
+    provider = KimiProvider("http://test", "key")
+    
+    mock_response = {
+        "id": "test-id",
+        "choices": [{"message": {"content": "Hello"}}]
+    }
+    
+    with patch("httpx.AsyncClient.post", new_callable=AsyncMock) as mock:
+        mock.return_value.json.return_value = mock_response
+        mock.return_value.raise_for_status = AsyncMock()
+        
+        result = await provider.chat_completions({"messages": []})
+        
+    assert "choices" in result
+    assert result["choices"][0]["message"]["content"] == "Hello"
+```
+
+## 测试流式响应
+
+```python
+@pytest.mark.asyncio
+async def test_stream_response():
+    provider = KimiProvider("http://test", "key")
+    
+    async def mock_stream():
+        yield "data: {...}\n\n"
+        yield "data: [DONE]\n\n"
+    
+    with patch("httpx.AsyncClient.stream") as mock:
+        mock.return_value.__aenter__.return_value.aiter_lines = mock_stream
+        
+        lines = []
+        async for line in provider.chat_completions_stream({}):
+            lines.append(line)
+        
+        assert len(lines) > 0
+```
+
+## 使用 Fixture
+
+```python
+# conftest.py
+import pytest
+from src.main import app
+
+@pytest.fixture
+def test_app():
+    return app
+
+@pytest.fixture
+async def async_client():
+    from httpx import AsyncClient
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        yield client
+```
+
+## 测试 API 端点
+
+```python
+import pytest
+from httpx import AsyncClient
+
+@pytest.mark.asyncio
+async def test_chat_completions_endpoint():
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        response = await client.post(
+            "/api/v1/chat/completions",
+            headers={"Authorization": "Bearer test-key"},
+            json={
+                "model": "kimi/k2",
+                "messages": [{"role": "user", "content": "Hello"}]
+            }
+        )
+    
+    assert response.status_code == 200
+    assert "choices" in response.json()
+```
+
+## 测试数据库操作
+
+```python
+import pytest
+import aiosqlite
+
+@pytest.mark.asyncio
+async def test_api_key_storage():
+    # 使用内存数据库测试
+    async with aiosqlite.connect(":memory:") as db:
+        await db.execute("CREATE TABLE api_keys (...)")
+        
+        # 测试插入
+        await db.execute("INSERT INTO api_keys ...")
+        
+        # 测试查询
+        cursor = await db.execute("SELECT * FROM api_keys")
+        rows = await cursor.fetchall()
+        assert len(rows) == 1
+```
+
+## 断言最佳实践
+
+```python
+# 基础断言
+assert result == expected
+assert len(items) > 0
+assert "key" in dictionary
+
+# 异常断言
+with pytest.raises(ValueError):
+    function_that_raises()
+
+with pytest.raises(httpx.HTTPError):
+    await failing_api_call()
+
+# 近似断言
+assert result == pytest.approx(3.14, 0.01)
+```
+
+## 运行测试
+
+```bash
+# 运行所有测试
+pytest
+
+# 运行特定文件
+pytest tests/test_providers.py
+
+# 运行特定测试
+pytest tests/test_providers.py::test_kimi_chat_completions
+
+# 详细输出
+pytest -v
+
+# 带覆盖率
+pytest --cov=src --cov-report=html
+
+# 遇到失败停止
+pytest -x
+
+# 失败时进入 PDB
+pytest --pdb
+```
+
+## 测试代码输出规范
+
+### 使用英文输出
+
+测试代码中的所有打印信息、日志和错误消息必须使用英文，避免非 ASCII 字符：
+
+```python
+# ❌ BAD
+print("测试通过")
+print("创建用户成功！")
+raise ValueError("密码不能为空")
+
+# ✅ GOOD
+print("Test passed")
+print("User created successfully")
+raise ValueError("Password cannot be empty")
+```
+
+### 避免非 ASCII 符号
+
+不要在测试代码中使用中文标点或特殊符号：
+
+```python
+# ❌ BAD
+print("开始测试……")  # 中文省略号
+print("结果：" + result)  # 中文冒号
+
+# ✅ GOOD
+print("Starting test...")
+print("Result: " + result)
+```
+
+## 测试代码目录结构
+
+### 本地存储与目录归类
+
+测试代码必须写在本地项目目录，按功能归类到相应目录：
+
+```
+llm-router/
+├── tests/                    # 单元测试
+│   ├── conftest.py
+│   ├── test_providers.py
+│   ├── test_api.py
+│   └── test_storage.py
+└── tests_integration/        # 集成测试
+    ├── conftest.py
+    ├── test_01_setup.py
+    ├── test_02_cli_users.py
+    ├── test_03_cli_keys.py
+    ├── test_04_api.py
+    └── test_05_edge_cases.py
+```
+
+- 单元测试放在 `tests/` 目录
+- 集成测试放在 `tests_integration/` 目录
+- 相同类型的测试文件归类到同一目录
+- 禁止将测试代码写到临时目录或系统目录
+
+## 数据目录保护
+
+### 禁止删除 data 目录
+
+`data/` 目录包含 SQLite 数据库文件，**严禁随意删除**：
+
+```python
+# ❌ BAD - 绝对禁止
+import shutil
+shutil.rmtree("data")  # DON'T DO THIS
+
+# ❌ BAD - 不要在测试清理中删除
+def teardown_module():
+    shutil.rmtree("data")  # DON'T DO THIS
+```
+
+### 正确的数据清理方式
+
+```python
+# ✅ GOOD - 使用事务回滚
+@pytest.mark.asyncio
+async def test_with_isolated_db():
+    async with aiosqlite.connect(":memory:") as db:
+        # 测试代码，使用内存数据库
+        pass
+
+# ✅ GOOD - 只清理测试生成的特定数据
+async def cleanup_test_data():
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute("DELETE FROM test_table WHERE name LIKE 'test_%'")
+        await db.commit()
+```
+
+### 数据库路径常量
+
+```python
+# 生产数据库路径
+DATA_DIR = "data"
+DB_PATH = "data/api_keys.db"
+
+# 测试使用内存数据库或临时文件
+TEST_DB_PATH = ":memory:"  # 或 tempfile 创建的临时文件
+```

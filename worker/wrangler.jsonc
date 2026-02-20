@@ -1,0 +1,115 @@
+/**
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ *
+ * 部署命令：
+ * - 线上环境: wrangler deploy --env production
+ * - 开发环境: wrangler deploy --env development
+ * - 本地开发: wrangler dev --env development
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "llm-router-worker",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-02-05",
+	"observability": {
+		"enabled": true
+	},
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"env": {
+		"production": {
+			"name": "llm-router-worker",
+			"routes": [
+				{
+					"pattern": "llm.mrzero.site/api/*",
+					"zone_name": "mrzero.site"
+				},
+				{
+					"pattern": "llm.mrzero.site/worker/*",
+					"zone_name": "mrzero.site"
+				}
+			],
+			"kv_namespaces": [
+				{
+					"binding": "KV_CACHE",
+					"id": "3d33fd5a9f8d493ea65a693fae7df4ba"
+				}
+			],
+			"queues": {
+				"producers": [
+					{
+						"binding": "USAGE_QUEUE",
+						"queue": "llm-router-usage"
+					}
+				],
+				"consumers": [
+					{
+						"queue": "llm-router-usage",
+						"max_batch_size": 100,
+						"max_batch_timeout": 30,
+						"max_retries": 3
+					}
+				]
+			},
+			"triggers": {
+				"crons": [
+					"0 * * * *"
+				]
+			},
+			"vars": {
+				"BACKEND_URL": "https://llm.mrzero.site",
+				"MOONSHOT_BASE_URL": "https://api.moonshot.cn/v1",
+				"DEEPSEEK_BASE_URL": "https://api.deepseek.com",
+				"ZAI_BASE_URL": "https://open.bigmodel.cn/api/paas/v4",
+			}
+		},
+		"development": {
+			"name": "llm-router-worker-dev",
+			"routes": [
+				{
+					"pattern": "test-llm.mrzero.site/api/*",
+					"zone_name": "mrzero.site"
+				},
+				{
+					"pattern": "test-llm.mrzero.site/worker/*",
+					"zone_name": "mrzero.site"
+				}
+			],
+			"kv_namespaces": [
+				{
+					"binding": "KV_CACHE",
+					"id": "llm-router-kv-cache"
+				}
+			],
+			"queues": {
+				"producers": [
+					{
+						"binding": "USAGE_QUEUE",
+						"queue": "llm-router-usage-dev"
+					}
+				],
+				"consumers": [
+					{
+						"queue": "llm-router-usage-dev",
+						"max_batch_size": 10,
+						"max_batch_timeout": 5,
+						"max_retries": 3
+					}
+				]
+			},
+			"triggers": {
+				"crons": [
+					"*/10 * * * *"
+				]
+			},
+			"vars": {
+				"BACKEND_URL": "https://test-llm.mrzero.site",
+				"MOONSHOT_BASE_URL": "https://api.moonshot.cn/v1",
+				"DEEPSEEK_BASE_URL": "https://api.deepseek.com",
+				"ZAI_BASE_URL": "https://open.bigmodel.cn/api/paas/v4",
+			}
+		}
+	}
+}

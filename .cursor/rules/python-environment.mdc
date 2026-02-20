@@ -1,0 +1,91 @@
+---
+description: Python environment and conda usage guidelines
+globs: "**/*.py"
+alwaysApply: true
+---
+
+# Python 环境管理
+
+## Conda 环境
+
+本项目使用名为 `llm-router` 的 Conda 环境：
+
+```bash
+# 激活环境
+conda activate llm-router
+
+# 查看环境信息
+conda info --envs
+```
+
+## Python 版本
+
+- **环境**: `llm-router`
+- **Python 版本**: 3.12.12
+- **路径**: `C:\Users\onthe\.conda\envs\llm-router\python.exe`
+
+## 运行命令规范
+
+所有 Python 命令必须在激活 `llm-router` 环境后执行：
+
+```bash
+# ✅ 正确的方式
+cd c:\repo\python\llm-router && conda activate llm-router && python <script.py>
+
+# 运行测试
+cd c:\repo\python\llm-router && conda activate llm-router && python -m pytest tests/ -v
+
+# 安装依赖
+cd c:\repo\python\llm-router && conda activate llm-router && pip install <package>
+```
+
+## 依赖管理
+
+依赖列表记录在 `requirements.txt` 中：
+
+```
+fastapi
+requests
+uvicorn
+aiosqlite
+dotenv
+httpx
+brotli
+pydantic
+pydantic-settings
+passlib[bcrypt]
+python-jose[cryptography]
+python-multipart
+email-validator
+pytest-asyncio
+pytest
+```
+
+安装或更新依赖：
+
+```bash
+conda activate llm-router && pip install -r requirements.txt
+```
+
+## 测试运行
+
+```bash
+# 运行所有测试
+conda activate llm-router && python -m pytest tests/ -v
+
+# 运行特定测试文件
+conda activate llm-router && python -m pytest tests/test_providers.py -v
+
+# 运行特定测试类
+conda activate llm-router && python -m pytest tests/test_providers.py::TestDeepSeekProvider -v
+
+# 运行特定测试方法
+conda activate llm-router && python -m pytest tests/test_providers.py::TestDeepSeekProvider::test_init -v
+```
+
+## 开发服务器
+
+```bash
+# 启动开发服务器
+conda activate llm-router && uvicorn src.main:app --reload
+```

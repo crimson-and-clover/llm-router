@@ -1,0 +1,150 @@
+---
+description: Code formatting requirements after module development
+globs: "**/*.py"
+alwaysApply: true
+---
+
+# 代码格式化规范
+
+## 模块开发完成后的必要步骤
+
+**每次模块开发完成后，必须执行代码格式化。**
+
+### 格式化工具
+
+本项目使用以下工具进行代码格式化：
+
+| 工具 | 用途 | 命令 |
+|-----|------|------|
+| `black` | Python 代码格式化 | `black src/ tests/` |
+| `isort` | 导入排序 | `isort src/ tests/` |
+| `ruff` | 快速代码检查和格式化 | `ruff check --fix src/ tests/` |
+
+### 格式化步骤
+
+模块开发完成后，按以下顺序执行：
+
+```bash
+# 1. 激活环境
+conda activate llm-router
+
+# 2. 导入排序（自动整理 import 语句）
+isort src/ tests/
+
+# 3. 代码格式化（统一代码风格）
+black src/ tests/
+
+# 4. 代码检查（自动修复可修复的问题）
+ruff check --fix src/ tests/
+```
+
+或者使用单行命令：
+
+```bash
+conda activate llm-router && isort src/ tests/ && black src/ tests/ && ruff check --fix src/ tests/
+```
+
+---
+
+## 检查清单
+
+模块开发完成后，提交代码前请确认：
+
+- [ ] 执行了 `isort` 整理导入语句
+- [ ] 执行了 `black` 格式化代码
+- [ ] 执行了 `ruff check --fix` 检查并修复问题
+- [ ] 所有格式化命令执行成功（无错误）
+- [ ] 代码功能测试通过
+
+---
+
+## 格式化前 vs 格式化后示例
+
+### 导入语句（isort）
+
+```python
+# ❌ 格式化前 - 导入混乱
+import os
+from typing import Dict
+import sys
+from fastapi import FastAPI
+from src.core.settings import get_settings
+import json
+from typing import Any, Optional
+
+# ✅ 格式化后 - 按标准分组排序
+import json
+import os
+import sys
+from typing import Any, Dict, Optional
+
+from fastapi import FastAPI
+
+from src.core.settings import get_settings
+```
+
+### 代码风格（black）
+
+```python
+# ❌ 格式化前 - 不一致的缩进和换行
+def process_data(data:dict, options:dict=None)->dict:
+    if options is None:
+        options={}
+    result={"status":"ok","data":data}
+    return result
+
+# ✅ 格式化后 - 统一的 PEP 8 风格
+def process_data(data: dict, options: dict = None) -> dict:
+    if options is None:
+        options = {}
+    result = {"status": "ok", "data": data}
+    return result
+```
+
+---
+
+## IDE 集成（推荐）
+
+### VS Code / Cursor 配置
+
+在 `.vscode/settings.json` 中添加：
+
+```json
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "ms-python.black-formatter",
+  "isort.args": ["--profile", "black"],
+  "[python]": {
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    }
+  }
+}
+```
+
+### 保存时自动格式化
+
+启用上述配置后，每次保存 Python 文件时会自动：
+1. 使用 `black` 格式化代码
+2. 使用 `isort` 整理导入
+
+---
+
+## 注意事项
+
+1. **提交前格式化** - 确保在 `git add` 和 `git commit` 之前完成格式化
+2. **CI 检查** - 代码仓库可能会配置 CI 检查，未格式化的代码可能导致构建失败
+3. **团队协作** - 统一的代码格式有助于代码审查和协作开发
+
+---
+
+## 格式化工具安装
+
+如未安装格式化工具，请先安装：
+
+```bash
+conda activate llm-router
+pip install black isort ruff
+```
+
+> **提示**：格式化工具的版本应保持一致，建议查看项目 `requirements.txt` 或 `pyproject.toml` 中的版本要求。
