@@ -8,6 +8,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 import platform
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.routes_chat import router as chat_router
 from src.api.routes_internal import router as internal_router
@@ -19,7 +20,7 @@ from src.core.logging import (
 )
 from src.core.settings import get_settings
 from src.providers import DeepSeekProvider, MoonshotProvider, TestProvider, ZaiProvider
-from src.storage import apikey_storage, user_storage
+from src.storage import apikey_storage, session_storage, user_storage
 
 # uvloop 在 Windows 上不可用，只在非 Windows 平台使用
 if platform.system() != "Windows":
@@ -34,6 +35,7 @@ async def lifespan(app: FastAPI):
     # 启动时初始化数据库
     await user_storage.init_db()
     await apikey_storage.init_db()
+    await session_storage.init_db()
 
     # Uvicorn/Hypercorn 启动后重新配置日志（防止覆盖配置）
     settings = get_settings()
@@ -57,6 +59,16 @@ def create_app():
     )
 
     app = FastAPI(lifespan=lifespan)
+
+    # 配置 CORS（仅在开发环境启用）
+    if settings.env == "dev":
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=["*"],
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
 
     # 初始化模型提供商
     app.state.providers = {

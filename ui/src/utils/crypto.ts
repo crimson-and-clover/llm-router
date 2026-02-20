@@ -4,6 +4,7 @@
  */
 
 import SHA256 from 'crypto-js/sha256'
+import HmacSHA256 from 'crypto-js/hmac-sha256'
 
 /**
  * 对密码进行 SHA256 哈希
@@ -26,28 +27,36 @@ export function generateNonce(): string {
 }
 
 /**
- * 生成请求签名
- * 可用于关键操作的额外验证
- * @param data 要签名的数据
+ * 生成请求签名 (HMAC-SHA256)
+ * 用于防止请求篡改和重放攻击
+ * @param method HTTP 方法
+ * @param path 请求路径
  * @param timestamp 时间戳
  * @param nonce 随机数
- * @returns 签名字符串
+ * @param body 请求体（可选）
+ * @param secret 签名密钥 (session_secret)
+ * @returns HMAC-SHA256 签名字符串
  */
 export function generateRequestSignature(
-  data: Record<string, any>,
+  method: string,
+  path: string,
   timestamp: number,
-  nonce: string
+  nonce: string,
+  body: unknown,
+  secret: string
 ): string {
-  // 按字母顺序排序并序列化
-  const sortedData = Object.keys(data)
-    .sort()
-    .reduce((acc, key) => {
-      acc[key] = data[key]
-      return acc
-    }, {} as Record<string, any>)
+  // 计算 body 的哈希（如果有）
+  let bodyHash = ''
+  if (body) {
+    const bodyString = typeof body === 'string' ? body : JSON.stringify(body)
+    bodyHash = SHA256(bodyString).toString()
+  }
 
-  const payload = JSON.stringify(sortedData) + timestamp + nonce
-  return SHA256(payload).toString()
+  // 构建待签名数据: METHOD + PATH + TIMESTAMP + NONCE + BODY_HASH
+  const payload = `${method.toUpperCase()}${path}${timestamp}${nonce}${bodyHash}`
+
+  // 使用 HMAC-SHA256 生成签名
+  return HmacSHA256(payload, secret).toString()
 }
 
 /**

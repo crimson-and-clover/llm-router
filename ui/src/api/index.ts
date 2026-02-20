@@ -3,27 +3,46 @@
  */
 
 import axios from 'axios'
-import { generateNonce } from '@/utils/crypto'
+import { generateNonce, generateRequestSignature } from '@/utils/crypto'
+import { useAuthStore } from '@/stores/auth'
 
 // 创建 axios 实例
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:12000',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
 })
 
-// 请求拦截器 - 添加认证 token 和安全头
+// 请求拦截器 - 添加认证 token 和安全头（含签名）
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
-    // 添加请求唯一标识，用于防止重放攻击
-    config.headers['X-Request-Nonce'] = generateNonce()
-    config.headers['X-Request-Timestamp'] = Date.now().toString()
+
+    // 添加时间戳和 nonce
+    const timestamp = Date.now()
+    const nonce = generateNonce()
+    config.headers['X-Request-Timestamp'] = timestamp.toString()
+    config.headers['X-Request-Nonce'] = nonce
+
+    // 获取 session_secret 并生成签名（如果已登录）
+    const authStore = useAuthStore()
+    if (authStore.sessionSecret && config.url) {
+      const signature = generateRequestSignature(
+        config.method || 'GET',
+        config.url,
+        timestamp,
+        nonce,
+        config.data,
+        authStore.sessionSecret
+      )
+      config.headers['X-Request-Signature'] = signature
+    }
+
     return config
   },
   (error) => {

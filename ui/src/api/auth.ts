@@ -1,32 +1,18 @@
-/**
- * 认证相关 API
- */
-
 import apiClient from './index'
-import type {
-  UserLoginRequest,
-  UserRegisterRequest,
-  LoginResponse,
-  UserResponse,
-} from '@/types/user'
+import type { LoginResponse, User } from '@/types/user'
 
-/**
- * 用户登录
- */
-export const login = (data: UserLoginRequest): Promise<LoginResponse> => {
-  return apiClient.post('/api/v1/auth/login', data)
+export const login = async (credentials: { username: string; password: string }): Promise<LoginResponse> => {
+  return await apiClient.post('/internal/auth/login', credentials)
+}
+
+export const getCurrentUser = async (): Promise<User> => {
+  return await apiClient.get('/internal/users/me')
 }
 
 /**
- * 用户注册
+ * 恢复会话密钥（页面刷新后使用）
+ * 用 JWT Token 换取 session_secret
  */
-export const register = (data: UserRegisterRequest): Promise<UserResponse> => {
-  return apiClient.post('/api/v1/auth/register', data)
-}
-
-/**
- * 获取当前用户信息
- */
-export const getCurrentUser = (): Promise<UserResponse> => {
-  return apiClient.get('/api/v1/users/me')
+export const getSession = async (): Promise<LoginResponse> => {
+  return await apiClient.get('/internal/auth/session')
 }

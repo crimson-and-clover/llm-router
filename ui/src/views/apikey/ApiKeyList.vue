@@ -8,7 +8,6 @@ import { useApiKeyStore } from '@/stores/apikey'
 import AppTable from '@/components/common/AppTable.vue'
 import AppButton from '@/components/common/AppButton.vue'
 import AppModal from '@/components/common/AppModal.vue'
-import AppInput from '@/components/common/AppInput.vue'
 import type { TableColumn } from '@/components/common/AppTable.vue'
 import type { ApiKey } from '@/types/apikey'
 
@@ -64,6 +63,12 @@ const columns: TableColumn<ApiKey>[] = [
   },
 ]
 
+// API Key 用途选项
+const PURPOSE_OPTIONS = [
+  { value: 'default', label: 'default' },
+  { value: 'cursor', label: 'cursor' },
+]
+
 // 创建 API Key 弹窗
 const showCreateModal = ref(false)
 const createForm = ref({
@@ -101,8 +106,12 @@ const handleCreate = async () => {
     if (apiKeyStore.newlyCreatedKey) {
       showNewKeyModal.value = true
     }
-  } catch (err: any) {
-    createError.value = err.message || '创建 API Key 失败'
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      createError.value = err.message
+    } else {
+      createError.value = '创建 API Key 失败'
+    }
   } finally {
     createLoading.value = false
   }
@@ -116,8 +125,12 @@ const handleRevoke = async (key: ApiKey) => {
   try {
     await apiKeyStore.revoke(key.id)
     alert('吊销成功')
-  } catch (err: any) {
-    alert(err.message || '操作失败')
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      alert(err.message)
+    } else {
+      alert('操作失败')
+    }
   }
 }
 
@@ -157,22 +170,9 @@ onMounted(() => {
           管理您的 API Key，用于访问 LLM Router 服务
         </p>
       </div>
-      <AppButton
-        variant="primary"
-        @click="openCreateModal"
-      >
-        <svg
-          class="w-4 h-4 mr-1.5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 4v16m8-8H4"
-          />
+      <AppButton variant="primary" @click="openCreateModal">
+        <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
         创建 API Key
       </AppButton>
@@ -180,18 +180,9 @@ onMounted(() => {
 
     <!-- 安全提示 -->
     <div class="bg-primary-50 border border-primary-200 rounded-lg p-4 flex items-start gap-3">
-      <svg
-        class="w-5 h-5 text-primary-600 mt-0.5 flex-shrink-0"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-        />
+      <svg class="w-5 h-5 text-primary-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       <div>
         <p class="text-sm font-medium text-primary-800">
@@ -204,53 +195,40 @@ onMounted(() => {
     </div>
 
     <!-- API Key 列表 -->
-    <AppTable
-      :columns="columns"
-      :data="apiKeyStore.apiKeys"
-      :loading="apiKeyStore.loading"
-      :show-pagination="true"
-      :current-page="apiKeyStore.currentPage"
-      :page-size="apiKeyStore.pageSize"
-      :total="apiKeyStore.total"
-      @update:current-page="handlePageChange"
-    />
+    <AppTable :columns="columns" :data="apiKeyStore.apiKeys" :loading="apiKeyStore.loading" :show-pagination="true"
+      :current-page="apiKeyStore.currentPage" :page-size="apiKeyStore.pageSize" :total="apiKeyStore.total"
+      @update:current-page="handlePageChange" />
 
     <!-- 创建 API Key 弹窗 -->
-    <AppModal
-      v-model="showCreateModal"
-      title="创建 API Key"
-      confirm-text="创建"
-      :loading="createLoading"
-      @confirm="handleCreate"
-    >
+    <AppModal v-model="showCreateModal" title="创建 API Key" confirm-text="创建" :loading="createLoading"
+      @confirm="handleCreate">
       <div class="space-y-4">
         <!-- 错误提示 -->
-        <div
-          v-if="createError"
-          class="bg-danger-50 border border-danger-200 text-danger-700 px-4 py-3 rounded-lg text-sm"
-        >
+        <div v-if="createError"
+          class="bg-danger-50 border border-danger-200 text-danger-700 px-4 py-3 rounded-lg text-sm">
           {{ createError }}
         </div>
 
-        <AppInput
-          v-model="createForm.purpose"
-          label="用途"
-          placeholder="例如：测试环境、生产环境"
-          help="用于标识这个 API Key 的用途"
-          :required="true"
-        />
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700">
+            用途 <span class="text-danger-500">*</span>
+          </label>
+          <select v-model="createForm.purpose"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            required>
+            <option value="" disabled>请选择用途</option>
+            <option v-for="option in PURPOSE_OPTIONS" :key="option.value" :value="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+          <p class="text-xs text-gray-500">用于标识这个 API Key 的用途</p>
+        </div>
       </div>
     </AppModal>
 
     <!-- 显示新创建的 Key 弹窗 -->
-    <AppModal
-      v-model="showNewKeyModal"
-      title="API Key 创建成功"
-      confirm-text="我已保存"
-      :show-close="false"
-      :close-on-overlay="false"
-      @confirm="closeNewKeyModal"
-    >
+    <AppModal v-model="showNewKeyModal" title="API Key 创建成功" confirm-text="我已保存" :show-close="false"
+      :close-on-overlay="false" @confirm="closeNewKeyModal">
       <div class="space-y-4">
         <div class="bg-warning-50 border border-warning-200 rounded-lg p-4">
           <p class="text-sm font-medium text-warning-800">
@@ -266,24 +244,11 @@ onMounted(() => {
             <code class="text-green-400 text-sm font-mono break-all">
               {{ apiKeyStore.newlyCreatedKey }}
             </code>
-            <AppButton
-              variant="ghost"
-              size="sm"
-              class="text-white hover:text-gray-200 ml-4 flex-shrink-0"
-              @click="copyToClipboard(apiKeyStore.newlyCreatedKey || '')"
-            >
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                />
+            <AppButton variant="ghost" size="sm" class="text-white hover:text-gray-200 ml-4 flex-shrink-0"
+              @click="copyToClipboard(apiKeyStore.newlyCreatedKey || '')">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
               </svg>
             </AppButton>
           </div>

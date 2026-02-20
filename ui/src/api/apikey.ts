@@ -15,7 +15,7 @@ import type {
  * 获取当前用户的 API Key 列表
  */
 export const getApiKeyList = async (params: ApiKeyListParams): Promise<ApiKeyListResponse> => {
-  const keys: ApiKey[] = await apiClient.get('/api/v1/users/me/keys')
+  const keys: ApiKey[] = await apiClient.get('/internal/users/me/keys')
   const page = params.page || 1
   const pageSize = params.pageSize || 10
   const start = (page - 1) * pageSize
@@ -33,12 +33,12 @@ export const getApiKeyList = async (params: ApiKeyListParams): Promise<ApiKeyLis
  * 创建新的 API Key
  */
 export const createApiKey = (data: CreateApiKeyRequest): Promise<ApiKey> => {
-  return apiClient.post('/api/v1/users/me/keys', data)
+  return apiClient.post('/internal/users/me/keys', data)
 }
 
 /**
  * 吊销 API Key
  */
 export const revokeApiKey = (keyId: number): Promise<RevokeApiKeyResponse> => {
-  return apiClient.delete(`/api/v1/users/me/keys/${keyId}`)
+  return apiClient.delete(`/internal/users/me/keys/${keyId}`)
 }

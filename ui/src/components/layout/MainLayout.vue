@@ -4,6 +4,7 @@
  * 包含侧边栏、顶部导航和主内容区
  */
 
+import { RouterView } from 'vue-router'
 import Sidebar from './Sidebar.vue'
 import Header from './Header.vue'
 </script>
@@ -21,7 +22,7 @@ import Header from './Header.vue'
       <!-- 页面内容 -->
       <main class="flex-1 overflow-auto">
         <div class="page-container">
-          <slot />
+          <RouterView />
         </div>
       </main>
     </div>

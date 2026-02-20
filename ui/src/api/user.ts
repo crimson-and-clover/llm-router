@@ -16,7 +16,7 @@ import type {
  */
 export const getUserList = async (params: UserListParams): Promise<UserListResponse> => {
   // 暂时返回所有数据，后端分页后再调整
-  const users: User[] = await apiClient.get('/api/v1/admin/users')
+  const users: User[] = await apiClient.get('/internal/admin/users')
   const page = params.page || 1
   const pageSize = params.pageSize || 10
   const start = (page - 1) * pageSize
@@ -34,26 +34,26 @@ export const getUserList = async (params: UserListParams): Promise<UserListRespo
  * 创建用户（超级用户）
  */
 export const createUser = (data: CreateUserRequest): Promise<User> => {
-  return apiClient.post('/api/v1/admin/users', data)
+  return apiClient.post('/internal/admin/users', data)
 }
 
 /**
  * 提升用户为超级用户
  */
 export const promoteUser = (userId: number): Promise<OperationResponse> => {
-  return apiClient.post(`/api/v1/admin/users/${userId}/promote`)
+  return apiClient.post(`/internal/admin/users/${userId}/promote`)
 }
 
 /**
  * 激活用户账号
  */
 export const activateUser = (userId: number): Promise<OperationResponse> => {
-  return apiClient.post(`/api/v1/admin/users/${userId}/activate`)
+  return apiClient.post(`/internal/admin/users/${userId}/activate`)
 }
 
 /**
  * 禁用用户账号
  */
 export const deactivateUser = (userId: number): Promise<OperationResponse> => {
-  return apiClient.post(`/api/v1/admin/users/${userId}/deactivate`)
+  return apiClient.post(`/internal/admin/users/${userId}/deactivate`)
 }

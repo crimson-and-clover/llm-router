@@ -170,8 +170,12 @@ const handleCreate = async () => {
     // 创建成功后清除密码
     createForm.value.password = ''
     showCreateModal.value = false
-  } catch (err: any) {
-    createError.value = err.message || '创建用户失败'
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      createError.value = err.message
+    } else {
+      createError.value = '创建用户失败'
+    }
   } finally {
     createLoading.value = false
   }
@@ -185,8 +189,12 @@ const handlePromote = async (user: User) => {
   try {
     await userStore.promote(user.id)
     alert('提升成功')
-  } catch (err: any) {
-    alert(err.message || '操作失败')
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      alert(err.message)
+    } else {
+      alert('操作失败')
+    }
   }
 }
 
@@ -195,8 +203,12 @@ const handleActivate = async (user: User) => {
   try {
     await userStore.activate(user.id)
     alert('激活成功')
-  } catch (err: any) {
-    alert(err.message || '操作失败')
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      alert(err.message)
+    } else {
+      alert('操作失败')
+    }
   }
 }
 
@@ -208,8 +220,12 @@ const handleDeactivate = async (user: User) => {
   try {
     await userStore.deactivate(user.id)
     alert('禁用成功')
-  } catch (err: any) {
-    alert(err.message || '操作失败')
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      alert(err.message)
+    } else {
+      alert('操作失败')
+    }
   }
 }
 

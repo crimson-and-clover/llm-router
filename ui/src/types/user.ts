@@ -40,6 +40,7 @@ export interface UserResponse extends User {}
 export interface LoginResponse {
   access_token: string
   token_type: string
+  session_secret: string  // 用于请求签名的会话密钥
 }
 
 /** 用户列表查询参数 */

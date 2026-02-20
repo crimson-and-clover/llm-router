@@ -56,8 +56,12 @@ const handleLogin = async () => {
     // 登录成功后立即清除密码
     form.password = ''
     router.push('/')
-  } catch (err: any) {
-    error.value = err.message || '登录失败，请检查用户名和密码'
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      error.value = err.message
+    } else {
+      error.value = '登录失败，请检查用户名和密码'
+    }
   } finally {
     loading.value = false
   }

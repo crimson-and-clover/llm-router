@@ -1,14 +1,14 @@
 import argparse
 import asyncio
 import getpass
+from pathlib import Path
 import re
 import sys
-from pathlib import Path
+
+from src.core.security import hash_password, sha256_hash
+from src.storage import user_storage
 
 sys.path.append(str(Path(__file__).parent.parent))
-
-from src.core.security import hash_password
-from src.storage import user_storage
 
 
 def validate_username(username: str) -> bool:
@@ -109,6 +109,7 @@ async def create_superuser(args):
         return
 
     # 哈希密码（使用 bcrypt）
+    password = sha256_hash(password)
     password_hash = hash_password(password)
 
     # 创建超级用户

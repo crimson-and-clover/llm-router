@@ -5,11 +5,12 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import type { User, UserLoginRequest, LoginResponse } from '@/types/user'
-import { login as loginApi, getCurrentUser } from '@/api/auth'
+import { login as loginApi, getCurrentUser, getSession } from '@/api/auth'
 
 export const useAuthStore = defineStore('auth', () => {
   // State
   const token = ref<string | null>(localStorage.getItem('token'))
+  const sessionSecret = ref<string | null>(null)  // 仅内存存储，用于请求签名
   const user = ref<User | null>(null)
   const loading = ref(false)
 
@@ -31,6 +32,13 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /**
+   * 设置 session_secret（仅内存存储，用于请求签名）
+   */
+  const setSessionSecret = (secret: string | null) => {
+    sessionSecret.value = secret
+  }
+
+  /**
    * 登录
    */
   const login = async (credentials: UserLoginRequest): Promise<void> => {
@@ -38,6 +46,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const response: LoginResponse = await loginApi(credentials)
       setToken(response.access_token)
+      setSessionSecret(response.session_secret)  // 保存会话密钥用于签名
       // 获取用户信息
       await fetchUserInfo()
     } finally {
@@ -64,18 +73,28 @@ export const useAuthStore = defineStore('auth', () => {
    */
   const logout = () => {
     setToken(null)
+    setSessionSecret(null)
     user.value = null
   }
 
   /**
-   * 初始化（检查本地存储的 token）
+   * 初始化（检查本地存储的 token，页面刷新后恢复 session_secret）
    */
   const init = async (): Promise<boolean> => {
     if (token.value) {
       try {
+        // 页面刷新后 sessionSecret 丢失，需要恢复
+        if (!sessionSecret.value) {
+          const response = await getSession()
+          setToken(response.access_token)
+          setSessionSecret(response.session_secret)
+        }
+        // 获取用户信息（后续请求需要签名）
         await fetchUserInfo()
         return true
       } catch {
+        // 恢复 session 失败，清除登录状态要求重新登录
+        logout()
         return false
       }
     }
@@ -85,6 +104,7 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     // State
     token,
+    sessionSecret,
     user,
     loading,
     // Getters
@@ -95,5 +115,6 @@ export const useAuthStore = defineStore('auth', () => {
     logout,
     init,
     fetchUserInfo,
+    setSessionSecret,
   }
 })

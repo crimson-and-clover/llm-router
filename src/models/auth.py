@@ -2,10 +2,11 @@ from pydantic import BaseModel, EmailStr
 
 
 class Token(BaseModel):
-    """JWT Token 响应模型"""
+    """JWT Token 响应模型（含会话密钥用于请求签名）"""
 
     access_token: str
     token_type: str = "bearer"
+    session_secret: str  # 用于 HMAC 请求签名
 
 
 class TokenPayload(BaseModel):
